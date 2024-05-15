@@ -27,9 +27,9 @@ Requirements
 
 Download files on terminal -
 ```
-git clone https://github.com/Sarasayed0118/VH-SCRIPT-FOR-VH-SERVER-ONLY &&
-cd VH-SCRIPT-FOR-VH-SERVER-ONLY &&
-sudo chown -R ubuntu:ubuntu /home/ubuntu/VH-SCRIPT-FOR-VH-SERVER-ONLY
+git clone https://github.com/Sarasayed0118/VH-NEW-MODDED-SCRIPT &&
+cd VH-NEW-MODDED-SCRIPT &&
+sudo chown -R ubuntu:ubuntu /home/ubuntu/VH-NEW-MODDED-SCRIPT
 ```
 
 ## 𝙄𝙣𝙨𝙩𝙖𝙡𝙡𝙖𝙩𝙞𝙤𝙣 𝙋𝙧𝙤𝙘𝙚𝙨𝙨 - 𝘼𝙪𝙩𝙤𝙢𝙖𝙩𝙞𝙘 𝙄𝙣𝙨𝙩𝙖𝙡𝙡𝙖𝙩𝙞𝙤𝙣:
@@ -149,7 +149,3 @@ SOFTWARE.
 - [X] To whom ever this may concern, All rights to VORTEX aka vortex1555 as the License states above.
 
 ![VORTEx(1)](https://github.com/hypervortex/Bombsuqad-Modded-Server-Files/assets/54455412/d726cb33-a900-420c-81e5-8e168a3967b4)
-# VH-NEW-MODDED-SCRIPT
-# VH-NEW-MODDED-SCRIPT
-# VH-NEW-MODDED-SCRIPT
-# VH-NEW-MODDED-SCRIPT
