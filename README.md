@@ -118,3 +118,4 @@ Here you can ban players, mute them, or disable their kick votes.
 - other small small feature improvement here there find yourself.
 # VH-SCRIPT-FOR-VH-SERVER-ONLY
 # VH-SCRIPT-FOR-VH-SERVER-ONLY
+# VH-SCRIPT-FOR-VH-SERVER-ONLY
