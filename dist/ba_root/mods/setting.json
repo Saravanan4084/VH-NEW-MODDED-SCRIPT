@@ -14,7 +14,8 @@
             "staff",
             "tcs",
             "moderator",
-            "whitelist"
+            "whitelist",
+            "tourney"
         ]
     },
     "OwnDefaultBackground": {
@@ -122,8 +123,6 @@
         "endTime": "06:30",
         "Snowfall": true,
         "fireflies": false,
-        "floor_reflections": true,
-        "magic_light": true,
         "fireflies_random_color": false
     },
     "colorfullMap": false,
@@ -231,7 +230,7 @@
         }
     },
     "discordbot": {
-        "enable": true,
+        "enable": false,
         "database_name": "<database-name>",
         "token": "<bot-token-herr>",
         "liveChat": true,

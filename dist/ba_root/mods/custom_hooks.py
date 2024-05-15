@@ -308,32 +308,7 @@ def night_mode() -> None:
             if settings["autoNightMode"]["Snowfall"]:
                 activity.snowfall_generator(settings["Snowfall"]["SnowCount"], 
                     settings["Snowfall"]["SnowFallingSpeed"], settings["Snowfall"]["SnowScale"])     
-#######
-            if settings['autoNightMode']["floor_reflections"]:
-                rs = [1]  # Adjust this value for suitable nighttime reflections
-                typee = 'soft' if 1 == 0 else 'powerup'
-                try:
-                    activity = _ba.get_foreground_host_activity()
-                    activity.map.node.reflection = typee
-                    activity.map.node.reflection_scale = rs
-                    activity.map.bg.reflection = typee
-                    activity.map.bg.reflection_scale = rs
-                    activity.map.floor.reflection = typee
-                    activity.map.floor.reflection_scale = rs
-                    activity.map.center.reflection = typee
-                    activity.map.center.reflection_scale = rs
-                except Exception as e:
-                    pass
-######
-            if settings['autoNightMode']["magic_light"]:
-                  m = 1.3 if 4 is None else float(4)
-                  s = 1000 if 0.9 is None else float(0.9)      
-                  try:
-                      activity = _ba.get_foreground_host_activity()
-                      ba.animate_array(activity.globalsnode, 'ambient_color',3, {0: (1*m,0,0), s: (0,1*m,0),s*2:(0,0,1*m),s*3:(1*m,0,0)},True)
-                  except Exception as e:
-                      pass     
-  
+
 
 def kick_vote_started(started_by: str, started_to: str) -> None:
     """Logs the kick vote."""

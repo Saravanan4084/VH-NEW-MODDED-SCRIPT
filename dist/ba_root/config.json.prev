@@ -194,10 +194,10 @@
  "Default Player Profiles": {
   "Client Input Device #1": "__account__",
   "Client Input Device #10": "\ua9c1\ud83d\udcab\u2022NFR\u2022\ud83d\udcab\ua9c2",
-  "Client Input Device #2": "Flynn",
-  "Client Input Device #3": "Wanted",
-  "Client Input Device #4": "captainundepant",
-  "Client Input Device #5": "CHAPRIKICHUDAI",
+  "Client Input Device #2": "Mithi wins",
+  "Client Input Device #3": "__account__",
+  "Client Input Device #4": "__account__",
+  "Client Input Device #5": "billy",
   "Client Input Device #6": "all dog",
   "Client Input Device #7": "__account__",
   "Client Input Device #8": "MINNAL \u1b44MURALI\u0fd0",
@@ -205,16 +205,16 @@
  },
  "Fleet Zone Pings": {
   "prod": {
-   "bahrain": 54.87276217062026,
-   "bangkok": 84.47705508116633,
-   "delhi": 22.33381475508213,
-   "dubai": 28.439262782223523,
-   "hong_kong": 101.99704812839627,
-   "hyderabad": 18.577996824868023,
-   "kolkata": 26.719420040026307,
-   "mumbai": 0.6011943155899644,
-   "singapore": 52.730910752899945,
-   "tel_aviv": 145.07170906290412
+   "bahrain": 36.96884819678962,
+   "bangkok": 86.62578643113375,
+   "delhi": 20.031042274087667,
+   "dubai": 29.350809850730002,
+   "hong_kong": 97.55178196169436,
+   "hyderabad": 14.006740633398294,
+   "kolkata": 26.792124155908823,
+   "mumbai": 0.5263047935441136,
+   "singapore": 62.54238327033818,
+   "tel_aviv": 154.7338659875095
   }
  },
  "Free-for-All Max Players": 25,
@@ -283,7 +283,7 @@
    "enabled": true
   }
  },
- "Port": 43222,
+ "Port": 43210,
  "Region Pings": {
   "af-south-1": 328.2357999996748,
   "ap-northeast-1": 150.0941541948123,
@@ -313,6 +313,78 @@
  "Team Tournament Playlist Randomize": true,
  "Team Tournament Playlist Selection": "vortex -_-... ~~~",
  "Team Tournament Playlists": {
+  "epic smash": [
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.5,
+     "Time Limit": 300,
+     "map": "Step Right Up"
+    },
+    "type": "SuperSmash.SuperSmash"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.25,
+     "Time Limit": 300,
+     "map": "Courtyard"
+    },
+    "type": "SuperSmash.SuperSmash"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.25,
+     "Time Limit": 300,
+     "map": "Doom Shroom"
+    },
+    "type": "SuperSmash.SuperSmash"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.25,
+     "Time Limit": 300,
+     "map": "The Pad"
+    },
+    "type": "SuperSmash.SuperSmash"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.25,
+     "Time Limit": 300,
+     "map": "Big G"
+    },
+    "type": "SuperSmash.SuperSmash"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.25,
+     "Time Limit": 300,
+     "map": "Roundabout"
+    },
+    "type": "SuperSmash.SuperSmash"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Lives (0 = Unlimited)": 2,
+     "Respawn Times": 0.25,
+     "Time Limit": 300,
+     "map": "Tip Top"
+    },
+    "type": "SuperSmash.SuperSmash"
+   }
+  ],
   "vortex -_-... ~~~": [
    {
     "settings": {
@@ -572,7 +644,7 @@
    }
   ]
  },
- "launchCount": 378,
+ "launchCount": 395,
  "lc14173": 1,
  "lc14292": 1
 }

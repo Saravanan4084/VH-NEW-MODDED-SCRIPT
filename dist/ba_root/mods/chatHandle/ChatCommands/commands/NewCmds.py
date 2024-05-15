@@ -15,7 +15,10 @@ from stats import mystats
 from bastd.gameutils import SharedObjects
 from tools import playlist
 from tools import logger
-Commands = ['hug', 'icy', 'spaz', 'zombieall', 'boxall', 'texall', 'kickall', 'ooh', 'spazall', 'vcl', 'acl', 'dbc', 'd_bomb_count', 'default_bomb_count']
+settings = setting.get_settings_data()
+ticket = settings["CurrencyType"]["CurrencyName"]
+tic = settings["CurrencyType"]["Currency"]
+Commands = ['hug', 'icy', 'spaz', 'zombieall', 'boxall', 'texall', 'kickall', 'ooh', 'spazall', 'vcl', 'acl', 'dbc', 'd_bomb_count', 'default_bomb_count', 'dbt', 'd_bomb_type', 'default_bomb_type']
 CommandAliases = ['cc', 'ccall', 'control', 'prot', 'protect', 'zoommessage', 'zm', 'pme', 'zombie', 'rainbow', 'ooh', 'playsound', 'tex', 'hugall', 'box', 'ac', 'exchange', 'tint', 'say', 'playsound', 'admincmdlist', 'vipcmdlist']
 
 
@@ -63,6 +66,9 @@ def NewCommands(command, arguments, clientid, accountid):
 
     elif command in ['dbc', 'd_bomb_count', 'default_bomb_count']:
         d_bomb_count(arguments, clientid)
+
+    elif command in ['dbt', 'd_bomb_type', 'default_bomb_type']:
+        d_bomb_type(arguments, clientid)
         
     elif command == 'kickall':
         kickall(arguments, clientid)
@@ -124,7 +130,7 @@ def stats_to_clientid(arguments, clid, acid):
                      reply = (
                          f"\ue048| Name: {fname}\n"
                          f"\ue048| PB-ID: {stats['aid']}\n"
-                         f"\ue048| Tickets: {tickets}\U0001FA99\n"
+                         f"\ue048| {ticket.capitalize()}: {tickets}{tic}\n"
                          f"\ue048| Rank: {stats['rank']}\n"
                          f"\ue048| Score: {stats['scores']}\n"
                          f"\ue048| Games: {stats['games']}\n"
@@ -136,6 +142,7 @@ def stats_to_clientid(arguments, clid, acid):
                  else:
                      areply = "Not played any match yet."
                      send(areply, clid)
+         
          
                     
 def hug(arguments, clientid):
@@ -620,7 +627,7 @@ def d_bomb_count(arguments, clientid):
                         break
                 if target_player:
                     target_player.actor.set_bomb_count(2)
-                    send(f"{naam} default bomb count is reset to 2", clientid)
+                    sendchat(f"{naam} default bomb count is reset to 2")
                 else:
                     send(f"Client {target_clientid} not found", clientid)
             except ValueError:
@@ -638,11 +645,79 @@ def d_bomb_count(arguments, clientid):
                         break
                 if target_player:
                     target_player.actor.set_bomb_count(count)
-                    send(f"{naam} default bomb count is {count} now", clientid)
+                    sendchat(f"{naam} default bomb count is {count} now")
                 else:
                     send(f"Client {target_clientid} not found", clientid)
             except ValueError:
                 send("Usage: /dbc (clientid) (count)", clientid)
+
+
+def d_bomb_type(arguments, clientid):
+    activity = _ba.get_foreground_host_activity()
+    
+    if not arguments:
+        send("Usage: /dbt or /defaultbombtype (bomb_type) all or /dbt (bomb_type) (clientid), type /dbt help for help", clientid)
+        return
+    
+    if arguments[0] == 'help':
+        send("bombtypes - [ice, impact, land_mine, normal, sticky, tnt, fly]\nTo reset type /dbt reset all or /dbt reset (clientid)", clientid)
+        return
+    
+    bomb_type = arguments[0]
+    valid_bomb_types = ['ice', 'impact', 'land_mine', 'normal', 'sticky', 'tnt', 'fly']
+    
+    if bomb_type in valid_bomb_types:
+        if len(arguments) == 1:
+            # Set bomb type for all players
+            for player in activity.players:
+                player.actor.bomb_type = bomb_type
+            send(f"Default bomb type set to {bomb_type} for all players now", clientid)
+        elif arguments[1] == 'all':
+            # Set bomb type for all players
+            for player in activity.players:
+                player.actor.bomb_type = bomb_type
+            send(f"Default bomb type set to {bomb_type} for all players now", clientid)
+        else:
+            target_clientid = int(arguments[1])
+            naam = clientid_to_name(target_clientid)
+            activity = _ba.get_foreground_host_activity()
+            target_player = None
+            for player in activity.players:
+                if player.sessionplayer.inputdevice.client_id == target_clientid:
+                     target_player = player
+                     break
+            if target_player:
+                target_player.actor.bomb_type = bomb_type
+                send(f"Default bomb type set to {bomb_type} for player {naam} now", clientid)
+            else:
+                send(f"Player with client ID {target_clientid} not found", clientid)
+    elif bomb_type == 'reset':
+        if len(arguments) == 1:
+            # Reset bomb type to normal for all players
+            for player in activity.players:
+                player.actor.bomb_type = 'normal'
+            send("Default bomb type reset to normal for all players now", clientid)
+        elif arguments[1] == 'all':
+            # Reset bomb type to normal for all players
+            for player in activity.players:
+                player.actor.bomb_type = 'normal'
+            send("Default bomb type reset to normal for all players now", clientid)
+        else:
+             target_clientid = int(arguments[1])
+             naam = clientid_to_name(target_clientid)
+             activity = _ba.get_foreground_host_activity()
+             target_player = None
+             for player in activity.players:
+                 if player.sessionplayer.inputdevice.client_id == target_clientid:
+                      target_player = player
+                      break
+             if target_player:
+                 target_player.actor.bomb_type = 'normal'
+                 send(f"Default bomb type reset to normal for player {naam} now", clientid)
+             else:
+                 send(f"Player with client ID {target_clientid} not found", clientid)
+    else:
+        send("Unknown bomb type, type /dbt help for help", clientid)
 
 
 def acl(arguments, client_id):

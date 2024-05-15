@@ -7,8 +7,12 @@ import ba, _ba
 import ba.internal
 import setting
 from stats import mystats
-from datetime import datetime
+from datetime import date, datetime
+import pytz
 import random
+import members.members as mid     
+counts = mid.members
+size = len(counts)   
 setti=setting.get_settings_data()
 class textonmap:
 
@@ -28,6 +32,8 @@ class textonmap:
         self.top_message(top)
         self.nextGame(nextMap)
         self.restart_msg()
+        self.show_date_time()
+        self.show_top_text()
         if hasattr(_ba, "season_ends_in_days"):
             # if _ba.season_ends_in_days < 9:
             self.season_reset(_ba.season_ends_in_days)
@@ -35,7 +41,11 @@ class textonmap:
             self.leaderBoard()
         if setti["textonmap"]['center highlights']["enable"]:
             self.timer = ba.timer(8.0, ba.Call(self.highlights_), repeat=True)
-
+        if setti["timetext"]["enable"]:                                               
+            self.timer = ba.timer(0.1, ba.Call(self.show_date_time), repeat = True)
+        if setti["TopMapText"]["enable"]:
+            self.timer = ba.timer(5.0, ba.Call(self.show_top_text), repeat = True)     
+        
     def highlights_(self):
         if setti["textonmap"]['center highlights']["randomColor"]:
             color=((0+random.random()*1.0),(0+random.random()*1.0),(0+random.random()*1.0))
@@ -68,6 +78,48 @@ class textonmap:
         self.delt = ba.timer(8.0,node.delete),
         ba.animate(node,'scale', {0.0: 0, 0.2: 1, 7.8: 1, 8.0: 0})
         self.index = int((self.index+1)%len(self.highlights))
+
+
+    def show_date_time(self):
+          time = setti["timetext"]["timezone"]
+          node = _ba.newnode('text',
+                          attrs={
+                              'text': u"" + "Date : " + str(datetime.now(pytz.timezone(time)).strftime("%A, %B %d, %Y")) + "\nTime : " + str(datetime.now(pytz.timezone(time)).strftime("%I:%M:%S %p")),
+                              'scale': 0.85,
+                              'flatness': 1,
+                              'maxwidth': 0,
+                              'h_attach': 'center',
+                              'h_align': 'center',
+                              'v_attach':'top',
+                              'position':(400,-60),
+                              'color':(1,1,1)})
+          self.delt = ba.timer(0.1, node.delete)   
+
+    def show_top_text(self):
+        texts = setti["TopMapText"]["msg"]
+        node = _ba.newnode('text',
+                    attrs={
+                        'text': random.choice(texts),
+                        'flatness': 3.0,
+                        'h_align': 'center',
+                        'v_attach':'top',
+                        'scale':1.2,
+                        'position':(0,-55),
+                        'color':(1,1,1)})      
+        ba.animate_array(
+             node,
+             "color",
+             3,
+             {
+                  0: (1,0,0), 
+                  1.2: (0,1,0), 
+                  2: (0,0,1), 
+                  3.1: (1,0,0),
+             },
+             loop=True,
+       )      
+        ba.animate(node,'opacity', {0.0: 0, 1.0: 2, 4.0: 2, 5.0: 0})
+        self.delt = ba.timer(5.0, node.delete)       
 
     def left_watermark(self, text):
         node = _ba.newnode('text',
@@ -212,7 +264,35 @@ class textonmap:
                   9: (1,0,0),
              },
              loop=True,
-       )         
+        )
+           
+        count = ("\n\n\ue043| MEMBERS COUNT: "+str(size)+" |\ue043")
+        node = _ba.newnode('text',
+                    attrs={
+                        'text': count,
+                        'scale': 0.75,
+                        'flatness': 1,
+                        'maxwidth': 0,
+                        'h_attach': 'center',
+                        'h_align': 'center',
+                        'v_attach':'top',
+                        'position':(400,-62),
+                        'color':(1,1,1)})      
+        ba.animate_array(
+             node,
+             "color",
+             3,
+             {
+                  0: (1, 0, 0),
+                  0.2: (1, 0.5, 0),
+                  0.6: (1,1,0),
+                  0.8: (0,1,0),
+                  1.0: (0,1,1),
+                  1.4: (1,0,1),
+                  1.8: (1,0,0),
+             },
+             loop=True,
+        )            
         node = _ba.newnode('text',
                             attrs={
                                 'text':u'\ue048| VH PARADISE |\ue048',

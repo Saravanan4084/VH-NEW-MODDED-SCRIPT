@@ -11,9 +11,6 @@ from ba import _math
 from ba._actor import Actor
 import random
 from datetime import date, datetime
-import pytz
-import setting
-settings = setting.get_settings_data()
 
 if TYPE_CHECKING:
     from typing import Set, List, Type, Optional, Sequence, Any, Tuple
@@ -189,52 +186,8 @@ class Map(Actor):
 
         If None is returned, default music will be used.
         """
-        return None
-                        
-    def show_text(self):
-        texts = settings["TopMapText"]["msg"]
-        t = _ba.newnode('text',
-                    attrs={
-                        'text': random.choice(texts),
-                        'flatness': 3.0,
-                        'h_align': 'center',
-                        'v_attach':'top',
-                        'scale':1.2,
-                        'position':(0,-55),
-                        'color':(1,1,1)})      
-        ba.animate_array(
-             t,
-             "color",
-             3,
-             {
-                  0: (1,0,0), 
-                  1.2: (0,1,0), 
-                  2: (0,0,1), 
-                  3.1: (1,0,0),
-             },
-             loop=True,
-       )      
-        ba.animate(t,'opacity', {0.0: 0, 1.0: 2, 4.0: 2, 5.0: 0})
-        ba.timer(5.0, t.delete)       
-
-    
-    def show_date_time(self):
-        enabled = settings["timetext"]["enable"]
-        if enabled:
-                  time = settings["timetext"]["timezone"]
-                  t = _ba.newnode('text',
-                              attrs={
-                                  'text': u"" + "Date : " + str(datetime.now(pytz.timezone(time)).strftime("%A, %B %d, %Y")) + "\nTime : " + str(datetime.now(pytz.timezone(time)).strftime("%I:%M:%S %p")),
-                                  'scale': 0.85,
-                                  'flatness': 1,
-                                  'maxwidth': 0,
-                                  'h_attach': 'center',
-                                  'h_align': 'center',
-                                  'v_attach':'top',
-                                  'position':(400,-60),
-                                  'color':(1,1,1)})
-                  ba.timer(0.1, t.delete)   
-               
+        return None                       
+   
     def __init__(self,
                  vr_overlay_offset: Optional[Sequence[float]] = None) -> None:
         """Instantiate a map."""
@@ -262,94 +215,7 @@ class Map(Actor):
         import ba
         import custom_hooks
         custom_hooks.on_map_init()
-        
-        self.credits = ba.NodeActor(
-                _ba.newnode('text',
-                            attrs={
-                                'text': " ",                                
-                                'flatness': 1.0,
-                                'h_align': 'center',
-                                'v_attach':'bottom',
-                                'h_attach':'right',
-                                'scale':0.7,
-                                'position':(-50,23),
-                                'color':(0.8,0.8,0.8)
-                            }))
-
-        import members.members as mid     
-        list = mid.members
-        size = len(list)   
-        count = ("\n\n\ue043| MEMBERS COUNT: "+str(size)+" |\ue043")
-        a = _ba.newnode('text',
-                    attrs={
-                        'text': count,
-                        'scale': 0.75,
-                        'flatness': 1,
-                        'maxwidth': 0,
-                        'h_attach': 'center',
-                        'h_align': 'center',
-                        'v_attach':'top',
-                        'position':(400,-62),
-                        'color':(1,1,1)})      
-        ba.animate_array(
-             a,
-             "color",
-             3,
-             {
-                  0: (1, 0, 0),
-                  0.2: (1, 0.5, 0),
-                  0.6: (1,1,0),
-                  0.8: (0,1,0),
-                  1.0: (0,1,1),
-                  1.4: (1,0,1),
-                  1.8: (1,0,0),
-             },
-             loop=True,
-       )            
-                 
-        if settings["TopMapText"]["enable"]:
-                                               
-            ba.timer(0.1, ba.Call(self.show_date_time), repeat = True)
-        
-
-            self.show_game=ba.NodeActor(
-                    _ba.newnode('text',
-                                attrs={
-                                    'text': " ",
-                                    'scale': 0.6,
-                                    'flatness': 1,
-                                    'maxwidth': 0,
-                                    'h_attach': 'left',
-                                    'h_align': 'left',
-                                    'v_attach':'bottom',
-                                    'position':(30,5),
-                                    'color':(1.5,1.5,1.5)
-                                })) 
-            self.top_text=ba.NodeActor(
-                    _ba.newnode('text',
-                                attrs={
-                                    'text': " ",                                    
-                                    'flatness': 1,
-                                    'h_align': 'center',
-                                    'v_attach':'top',
-                                    'h_attach':'right',
-                                    'scale':0.9,
-                                    'position':(-115,-100),
-                                    'color':(1,1,0)
-                                }))   
-            self.Ranks=ba.NodeActor(
-                _ba.newnode('text',
-                            attrs={
-                                'text': "",                                
-                                'flatness': 1,
-                                'h_align': 'center',
-                                'v_attach':'top',
-                                'h_attach':'center',
-                                'scale':0.8,
-                                'position':(400,-50),
-                                'color':(1,1,1)
-                            }))                                                                             
-            ba.timer(5.0, ba.Call(self.show_text), repeat = True)         
+           
         # Set area-of-interest bounds.
         aoi_bounds = self.get_def_bound_box('area_of_interest_bounds')
         if aoi_bounds is None:

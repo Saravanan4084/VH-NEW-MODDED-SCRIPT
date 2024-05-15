@@ -13,7 +13,6 @@ from chatHandle.ChatCommands.commands import NormalCommands as nc
 from chatHandle.ChatCommands.commands import CoinCmds as cc
 from bacommon.servermanager import ServerConfig
 from features import complaints as c
-from features import partyname as aa
 import members.members as mid
 from datetime import datetime, timedelta
 from stats import mystats
@@ -208,18 +207,6 @@ async def on_message(message):
             username = message.author.name
             pinfo.update_server_info(command, servers, dc_servername, dc_serverid, server_ip, server_port)
             dcl.log_command(userid, username, command)
-            if m[0] == 'pn':
-              if len(m) >= 2:
-                 name = "party_name"
-                 new_party_name = ' '.join(m[1:])
-                 success, response = aa.change_party_name(name, new_party_name)
-                 if success:
-                     await message.channel.send(response)
-                 else:
-                     await message.channel.send(response)
-              else:
-                  await message.channel.send("Usage: v!pn new_party_name")
-
             if len(m) > 0 and m[0] == 'bsunban':  #unban in all server xD
                 if len(m) == 2:
                     pb_id_to_unban = m[1]                	
@@ -784,40 +771,6 @@ async def on_message(message):
                             await message.channel.send(f":arrow_right:**`No One has messaged in {servers}.`**")
                 except:
                     await message.channel.send(":arrow_right:**`Limit exceeds maximum word count of 2000.`**")
-
-
-            elif m[0] == (cmd + 'list'):         
-                  try:
-                      global stats
-                      if not stats['roster']:
-                          embed = discord.Embed(description="No one in the server.", color=0xFF5733)
-                          await message.channel.send(embed=embed)
-                      else:
-                          embed = discord.Embed(title="Server Roster", color=0x00FF00)
-                          for id in stats['roster']:
-                              name = stats['roster'][id].get('name', 'Unknown')
-                              device_id = stats['roster'][id].get('device_id', 'Unknown')
-                
-                              # Fetch Discord user if available
-                              user = None
-                              if not user:
-                                  user_data = mongo.linkedusers.find_one({"pbid": id})
-                                  if user_data:
-                                      user_id = user_data.get('discord_id')
-                                      if user_id:
-                                          user = await client.fetch_user(user_id)
-                                      else:
-                                          await message.channel.send(">>> <:Cross:1178624823656714280>`DC user-ID not found.`")
-                
-                              # Add player information to the embed
-                              if user:
-                                  embed.add_field(name=f"[{id}]", value=f"{user.mention} ({name}) {device_id}", inline=False)
-                              else:
-                                  embed.add_field(name=f"[{id}]", value=f"{name} {device_id}", inline=False)
-            
-                          await message.channel.send(embed=embed)
-                  except Exception as e:
-                      print(f"Error: {e}")
 
              #check player last messages xD
             elif m[0] == (cmd +'plm'):         
@@ -2421,23 +2374,10 @@ async def refresh_stats():
         try:
             # Assuming this is part of a larger function or method
             for id in stats['roster']:
+                client_id = stats['roster'][id]['client_id']
                 name = stats['roster'][id]['name']
                 device_id = stats['roster'][id]['device_id']
-                user = None    
-                # Fetch Discord user if available
-                if not user:
-                   user_data = mongo.linkedusers.find_one({"pbid": id})
-                   if user_data:
-                      user_id = user_data.get('discord_id')
-                      if user_id:
-                          user = await client.fetch_user(user_id)
-                      else:
-                          await message.channel.send(">>> <:Cross:1178624823656714280>`DC user-ID not found.`")    
-                      # Construct message
-                      if user:
-                          msg += f"[{id}] {user.mention} ({name}) {device_id}\n"
-                      else:
-                          msg += f"[{id}] {name} {device_id}\n"
+                msg += f"{client_id} [{id}] {name} {device_id}\n"
         except Exception as err:
             print(f"ERROR OCCURED IN BOT.PY:\n{err}")
     

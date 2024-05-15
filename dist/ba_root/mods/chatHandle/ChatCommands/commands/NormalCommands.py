@@ -17,7 +17,7 @@ tic = settings["CurrencyType"]["Currency"] #dont change this or it will give an 
 
 Commands = ['me', 'list', 'uniqeid', 'ping', 'vp', 'uid', 'pbid', 'comp', 'complaintstep']
 CommandAliases = ['stats', 'score', 'rank',
-                  'myself', 'l', 'id', 'link', 'pb-id', 'dclink', 'pme', 'pb', 'accountid', 'coinhelp', 'voting-playlist', 'complaint', 'cs']
+                  'myself', 'l', 'id', 'link', 'pb-id', 'dclink', 'pb', 'accountid', 'coinhelp', 'voting-playlist', 'complaint', 'cs']
 
 
 def ExcelCommand(command, arguments, clientid, accountid, ARGUMENTS):
@@ -55,9 +55,6 @@ def ExcelCommand(command, arguments, clientid, accountid, ARGUMENTS):
     elif command in ['cs', 'complaintstep']:
         complaint_step(arguments, clientid)
         
-    elif command == 'pme':
-        stats_to_clientid(arguments, clientid, accountid)        
-
     elif command == 'coinhelp':
         coinhelp(arguments, clientid)
 
@@ -120,41 +117,7 @@ def stats(ac_id, clientid):
 def fetch_send_stats(ac_id, clientid):
     _thread.start_new_thread(stats, (ac_id, clientid,))
 
-    
-def stats_to_clientid(arguments, clid, acid):
-     players = _ba.get_foreground_host_activity().players
-     player = _ba.get_foreground_host_activity()
-     if arguments == [] or arguments == ['']:
-        with ba.Context(player):
-         send(f"Using: /pme [Clientid of player]", clid)
-     else:
-         cl_id = int(arguments[0])
-         for pla in ba.internal.get_foreground_host_session().sessionplayers:
-              if pla.inputdevice.client_id == cl_id:
-                 fname = pla.getname(full=True, icon=True)
-         for roe in ba.internal.get_game_roster():
-              if roe["client_id"] == cl_id:
-                 pbid = roe["account_id"]
-                 stats = mystats.get_stats_by_id(pbid)  
-                 if stats:
-                     tickets = getcoins(pbid)
-                     reply = (
-                         f"\ue048| Name: {fname}\n"
-                         f"\ue048| PB-ID: {stats['aid']}\n"
-                         f"\ue048| {ticket.capitalize()}: {tickets}{tic}\n"
-                         f"\ue048| Rank: {stats['rank']}\n"
-                         f"\ue048| Score: {stats['scores']}\n"
-                         f"\ue048| Games: {stats['games']}\n"
-                         f"\ue048| Kills: {stats['kills']}\n"
-                         f"\ue048| Deaths: {stats['deaths']}\n"
-                         f"\ue048| Avg.: {stats['avg_score']}\n"
-                     )
-                     send(reply, clid)
-                 else:
-                     areply = "Not played any match yet."
-                     send(areply, clid)
-         
-         
+
 def pingall(clientid):
     """Returns The List Of Players Clientid and index"""
 
