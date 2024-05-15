@@ -20,6 +20,8 @@ def check_permissions(accountid):
 
 
 def filter(msg,pb_id,client_id):
+	if not msg.strip():
+		return None
 	new_msg=profanity.censor(msg)
 	if new_msg!=msg:
 		_ba.screenmessage("Don\'t ABUSE!", color=(1,0,0), transient=True, clients=[client_id])
@@ -37,9 +39,9 @@ def filter(msg,pb_id,client_id):
 		smsgcount=serverdata.clients[pb_id]['cSameMsg']
 		if now - serverdata.clients[pb_id]["lastMsgTime"] < 8:
 			count+=1
-			if count == 2: #when 3 msgs
+			if count == 6: #when 7 msgs
 				_ba.screenmessage("Sending messages too fast, cool down...", color=(1,0.40,0.50), transient=True, clients=[client_id])
-			elif count >=3: #when 4 msgs
+			elif count >=7: #when 8 msgs
 				_ba.screenmessage("Don\'t SPAM!", color=(1,0,0), transient=True, clients=[client_id])
 				if not check_permissions(pb_id):
 					addWarn(pb_id,client_id)

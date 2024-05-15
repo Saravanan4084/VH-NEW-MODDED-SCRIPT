@@ -1,24 +1,23 @@
 """Module to manage players data."""
-
 # ba_meta require api 6
 # (see https://ballistica.net/wiki/meta-tag-system)
-
 from __future__ import annotations
 import shutil
 import copy
 from typing import TYPE_CHECKING
-
+from chatHandle.ChatCommands.commands.Handlers import send, sendchat
 import time
 import os
+import set
+from tools import logger
 import _thread
-
 from serverData import serverdata
 from tools.file_handle import OpenJson
 # pylint: disable=import-error
 import _ba
 import ba.internal
 import json
-
+from tools import mongo
 from tools.ServerUpdate import checkSpammer
 import setting
 from datetime import datetime, timedelta
@@ -59,6 +58,25 @@ def get_info(account_id: str) -> dict | None:
     profiles = get_profiles()
     if account_id in profiles:
         return profiles[account_id]
+    return None
+
+
+def get_cmdlist(role: str) -> dict | None:
+    """Returns the information about player.
+
+    Parameters
+    ----------
+    role : str
+        role of the client
+
+    Returns
+    -------
+    dict | None
+        information of client
+    """
+    roles = get_roles()
+    if role in roles:
+        return roles[role]
     return None
 
 
@@ -133,6 +151,26 @@ def update_blacklist():
     with open(PLAYERS_DATA_PATH + "blacklist.json", "w") as f:
         json.dump(CacheData.blacklist, f, indent=4)
 
+def updates_roles():
+    roles = copy.deepcopy(CacheData.roles)
+    with open(PLAYERS_DATA_PATH + "roles.json", "w") as f:
+        json.dump(roles, f, indent=4)
+
+def update_custom():
+    custom = copy.deepcopy(CacheData.custom)
+    with open(PLAYERS_DATA_PATH + "custom.json", "w") as f:
+        json.dump(custom, f, indent=4)
+
+def get_database():
+    bannedplayers = mongo.Banlist.find_one()
+    return bannedplayers 
+
+def update_database():
+    mongo.Banlist.delete_many({})
+    x = mongo.Banlist.insert_one(bandata)
+
+    print(x.inserted_id)
+
 
 def commit_profiles(data={}) -> None:
     """Commits the given profiles in the database.
@@ -161,6 +199,34 @@ def get_detailed_info(pbid):
     return f"Accounts:{linked_accounts} \n other accounts {otheraccounts} \n created on {dob}"
 
 
+def get_detailed_pinfo(pbid):
+    main_account = get_info(pbid)
+    if main_account == None:
+        return " "
+    linked_accounts = ' '.join(main_account["display_string"])
+    ip = main_account["lastIP"]
+    deviceid = main_account["deviceUUID"]
+    otheraccounts = ""
+    dob = main_account["accountAge"]
+    profiles = get_profiles()
+    for key, value in profiles.items():
+        if ("lastIP" in value and value["lastIP"] == ip) or ("deviceUUID" in value and value["deviceUUID"] == deviceid):
+            otheraccounts += '  '.join(value["display_string"])+", "
+    return f"{otheraccounts}"
+
+
+def roles_cmdlist(role):
+    main_role = get_cmdlist(role)
+    if main_role == None:
+        return " "
+    rol = ', '.join(main_role["commands"])
+    othercmd = ""
+    roles = get_roles()
+    for key, value in roles.items():
+         othercmd += '  '.join(value["commands"])+", "
+    return f"{rol}"
+
+
 def add_profile(
     account_id: str,
     display_string: str,
@@ -185,6 +251,8 @@ def add_profile(
         "display_string": display_string,
         "profiles": [],
         "name": current_name,
+        "isBan": False,
+        "isMuted": False,
         "accountAge": account_age,
         "registerOn": time.time(),
         "spamCount": 0,
@@ -213,9 +281,23 @@ def add_profile(
         device_id = _ba.get_client_device_uuid(cid)
     checkSpammer({'id': account_id, 'display': display_string,
                  'ip': ip, 'device': device_id})
-    if device_id in get_blacklist()["ban"]["deviceids"] or account_id in get_blacklist()["ban"]["ids"]:
-        ba.internal.disconnect_client(cid)
+    blacklist_data = get_blacklist()
+    database_data = get_database()
+    if blacklist_data and "ban" in blacklist_data and "deviceids" in blacklist_data["ban"]:
+        if device_id in blacklist_data["ban"]["deviceids"] or account_id in blacklist_data["ban"]["ids"]:
+            ba.internal.disconnect_client(cid)
+        else:
+            return
+
+    if database_data and "ban" in database_data and "deviceids" in database_data["ban"]:
+        if database_data["ban"]["deviceids"] and device_id in database_data["ban"]["deviceids"]:
+            serverdata.clients[account_id]["isBan"] = True
+            ba.internal.disconnect_client(cid)
+    else:
+        return
     serverdata.clients[account_id]["deviceUUID"] = device_id
+    if set.coin:
+        checkExpiredItems()
 
 
 def update_display_string(account_id: str, display_string: str) -> None:
@@ -275,6 +357,71 @@ def update_profile(
     commit_profiles()
 
 
+def ban_player_mongo(account_id: str) -> None:
+    """Bans the player.
+
+    Parameters
+    ----------
+    account_id : str
+        account id of the player to be banned
+    """
+    profiles = get_profiles()
+    if account_id in profiles:
+        profiles[account_id]["isBan"] = True
+        CacheData.profiles=profiles
+        # _thread.start_new_thread(commit_profiles, (profiles,))
+    cid = -1
+    for ros in ba.internal.get_game_roster():
+        if ros['account_id'] == account_id:
+            cid = ros['client_id']
+    ip = _ba.get_client_ip(cid)
+
+    device_id = _ba.get_client_public_device_uuid(cid)
+    if(device_id==None):
+        device_id = _ba.get_client_device_uuid(cid)
+
+    global bandata
+    bandata = mongo.Banlist.find_one()
+    bandata["ban"]["ips"].append(ip)
+    bandata["ban"]["ids"].append(account_id)
+    bandata["ban"]["deviceids"].append(device_id)
+    _thread.start_new_thread(update_database,())
+
+
+def mongokick(account_id: str) -> None:
+    """kicks the player if mongoban is called.
+
+    Parameters
+    ----------
+    account_id : str
+        account id of the player to be kicked
+    """
+    for account in serverdata.recents:
+        if account['pbid'] == account_id:
+           cl_id = account['client_id']
+           name = account['deviceId']
+    sendchat(f"{name} have been banned from server by discord..👋")
+    logger.log(f"Successfully banned {name} from server by discord")    
+    ba.internal.disconnect_client(cl_id)
+ 
+          
+def dckick(account_id: str) -> None:
+    """kicks the player if dckick is called.
+
+    Parameters
+    ----------
+    account_id : str
+        account id of the player to be kicked
+    """
+    for account in serverdata.recents:
+        if account['pbid'] == account_id:
+           cl_id = account['client_id']
+           name = account['deviceId']
+    sendchat(f"{name} have been kicked from server by discord.. Goodbye 👋")
+    logger.log(f"kicked {name} from discord..!")
+    ba.internal.disconnect_client(cl_id)
+
+                
 def ban_player(account_id: str,  duration_in_days: float, reason: str) -> None:
     """Bans the player.
 
@@ -325,6 +472,87 @@ def disable_kick_vote(account_id, duration, reason):
 def enable_kick_vote(account_id):
     CacheData.blacklist["kick-vote-disabled"].pop(account_id, None)
     _thread.start_new_thread(update_blacklist, ())
+
+
+def mute_mongo(account_id: str) -> None:
+    """Mutes the player.
+
+    Parameters
+    ----------
+    account_id : str
+        acccount id of the player to be muted
+    """
+    profiles = get_profiles()
+    if account_id in profiles:
+        profiles[account_id]["isMuted"] = True
+        CacheData.profiles=profiles
+        _thread.start_new_thread(commit_profiles, (profiles,))
+
+
+def checkExpiredItems():
+    customers = get_custom()['paideffects']
+    expired_keys = []
+
+    for x in customers:
+        y = customers[x]['expiry']
+        now = datetime.now()
+        expiry = datetime.strptime(y, '%d-%m-%Y %H:%M:%S')
+        if expiry < now:
+            print("Expired effect found")
+            expired_keys.append(x)
+
+    # Remove expired keys
+    for key in expired_keys:
+        customers.pop(key)
+
+
+def checkExpiredcomp():
+    customers = get_custom()['complainter']
+    expired_keys = []
+
+    for x in customers:
+        y = customers[x]['expiry']
+        now = datetime.now()
+        expiry = datetime.strptime(y, '%d-%m-%Y %I:%M:%S %p')
+        if expiry < now:
+            print("Expired complainter found")
+            expired_keys.append(x)
+
+    # Remove expired keys
+    for key in expired_keys:
+        customers.pop(key)
+
+
+def checkExpiredclaim():
+    customers = get_custom()['coin_claim']
+    expired_keys = []
+
+    for x in customers:
+        y = customers[x]['expiry']
+        now = datetime.now()
+        expiry = datetime.strptime(y, '%d-%m-%Y %H:%M:%S')
+        if expiry < now:
+            print("Expired claimed player found")
+            expired_keys.append(x)
+
+    # Remove expired keys
+    for key in expired_keys:
+        customers.pop(key)
+
+
+def unmute_mongo(account_id: str) -> None:
+    """Unmutes the player.
+
+    Parameters
+    ----------
+    account_id : str
+        acccount id of the player to be unmuted
+    """
+    profiles = get_profiles()
+    if account_id in profiles:
+        profiles[account_id]["isMuted"] = False
+        CacheData.profiles=profiles
+        _thread.start_new_thread(commit_profiles, (profiles,))
 
 
 def mute(account_id: str, duration_in_days: float, reason: str) -> None:
@@ -452,9 +680,11 @@ def add_player_role(role: str, account_id: str) -> None:
             roles[role]["ids"].append(account_id)
             CacheData.roles = roles
             commit_roles(roles)
-
+            return "Added " + role
+        else:
+            return "Accountid already have " + role + " role"
     else:
-        print("no role such")
+        print("No such role.")
 
 
 def remove_player_role(role: str, account_id: str) -> str:
@@ -463,22 +693,25 @@ def remove_player_role(role: str, account_id: str) -> str:
     Parameters
     ----------
     role : str
-        role to br removed
+        Role to be removed.
     account_id : str
-        account id of the client
+        Account ID of the client.
 
     Returns
     -------
     str
-        status of the removing role
+        Status of the role removal.
     """
     roles = get_roles()
     if role in roles:
-        roles[role]["ids"].remove(account_id)
-        CacheData.roles = roles
-        commit_roles(roles)
-        return "removed from " + role
-    return "role not exists"
+        if account_id in roles[role]["ids"]:
+            roles[role]["ids"].remove(account_id)
+            CacheData.roles = roles
+            commit_roles(roles)
+            return "Removed from " + role
+        else:
+            return "Account ID not found in " + role
+    return "Role does not exist"
 
 
 def add_command_role(role: str, command: str) -> str:
@@ -587,20 +820,20 @@ def get_custom() -> dict:
     """
     if CacheData.custom == {}:
         try:
-            f = open(PLAYERS_DATA_PATH + "custom.json", "r")
+            f=open(PLAYERS_DATA_PATH + "custom.json","r")
             custom = json.load(f)
             f.close()
-            CacheData.custom = custom
+            CacheData.custom=custom
         except:
-            f = open(PLAYERS_DATA_PATH + "custom.json.backup", "r")
+            f=open(PLAYERS_DATA_PATH + "custom.json.backup","r")
             custom = json.load(f)
             f.close()
-            CacheData.custom = custom
-        for account_id in custom["customeffects"]:
-            custom["customeffects"][account_id] = [custom["customeffects"][account_id]] if type(
-                custom["customeffects"][account_id]) is str else custom["customeffects"][account_id]
-
+            CacheData.custom=custom
     return CacheData.custom
+
+def set_effect(effect: str, accout_id: str) -> None:
+   
+    return
 
 
 def set_effect(effect: str, account_id: str) -> None:
@@ -653,7 +886,38 @@ def update_custom_perks(custom):
     CacheData.custom = custom
 
 
-def remove_effect(account_id: str) -> None:
+def remove_effect(account_id: str, effect: str) -> None:
+    """Removes a specific effect from a player.
+
+    Parameters
+    ----------
+    account_id : str
+        Account ID of the client
+    effect : str
+        The effect to be removed
+    """
+    custom = get_custom()
+    if account_id in custom["customeffects"]:
+        if effect in custom["customeffects"][account_id]:
+            custom["customeffects"][account_id].remove(effect)
+            CacheData.custom = custom
+
+
+def remove_all_effects(account_id: str) -> None:
+    """Removes all effects from a player.
+
+    Parameters
+    ----------
+    account_id : str
+        Account ID of the client
+    """
+    custom = get_custom()
+    if account_id in custom["customeffects"]:
+        custom["customeffects"].pop(account_id)
+    CacheData.custom = custom
+
+
+def remove_paid_effect(account_id: str) -> None:
     """Removes the effect from player.
 
     Parameters
@@ -662,7 +926,7 @@ def remove_effect(account_id: str) -> None:
         account id of the client
     """
     custom = get_custom()
-    custom["customeffects"].pop(account_id)
+    custom["paideffects"].pop(account_id, None)
     CacheData.custom = custom
 
 

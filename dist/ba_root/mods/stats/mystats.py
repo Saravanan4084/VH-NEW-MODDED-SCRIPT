@@ -13,7 +13,7 @@ from ba._activitytypes import *
 damage_data = {}
 
 ranks = []
-top3Name = []
+top5Name = []
 
 our_settings = setting.get_settings_data()
 
@@ -52,7 +52,7 @@ def get_all_stats():
             try:
                 stats = jsonData["stats"]
                 seasonStartDate = datetime.datetime.strptime(
-                    jsonData["startDate"], "%d-%m-%Y")
+                    jsonData["startDate"], "%d-%m-%Y %H:%M:%S")
                 _ba.season_ends_in_days = our_settings["statsResetAfterDays"] - (
                     datetime.datetime.now() - seasonStartDate).days
                 if (datetime.datetime.now() - seasonStartDate).days >= our_settings["statsResetAfterDays"]:
@@ -76,7 +76,7 @@ def dump_stats(s: dict):
     global seasonStartDate
     if seasonStartDate == None:
         seasonStartDate = datetime.datetime.now()
-    s = {"startDate": seasonStartDate.strftime("%d-%m-%Y"), "stats": s}
+    s = {"startDate": seasonStartDate.strftime("%d-%m-%Y %H:%M:%S"), "stats": s}
     if os.path.exists(statsfile):
         shutil.copyfile(statsfile, statsfile+".backup")
         with open(statsfile, 'w', encoding='utf8') as f:
@@ -165,7 +165,7 @@ def refreshStats():
     ranks = _ranks
 
     dump_stats(pStats)
-    updateTop3Names(toppersIDs[0:3])
+    updateTop5Names(toppersIDs[0:5])
 
     from playersData import pdata
     pdata.update_toppers(toppersIDs)
@@ -280,8 +280,8 @@ def getRank(acc_id):
         return ranks.index(acc_id) + 1
 
 
-def updateTop3Names(ids):
-    global top3Name
+def updateTop5Names(ids):
+    global top5Name
     names = []
     for id in ids:
         url = "http://bombsquadgame.com/bsAccountInfo?buildNumber=20258&accountID=" + id
@@ -295,4 +295,4 @@ def updateTop3Names(ids):
                 names.append("???")
             else:
                 names.append(name)
-    top3Name = names
+    top5Name = names

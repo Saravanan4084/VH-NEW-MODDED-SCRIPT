@@ -1,8 +1,9 @@
 from .Handlers import handlemsg, handlemsg_all
 import ba, _ba
 from tools import corelib
+from .. import floater
 
-Commands = ['fly', 'invisible', 'headless', 'creepy', 'celebrate', 'spaz', 'speed', 'floater']
+Commands = ['fly', 'invisible', 'headless', 'creepy', 'celebrate', 'speed', 'floater']
 CommandAliases = ['inv', 'hl', 'creep', 'celeb', 'flo']
 
 
@@ -40,22 +41,23 @@ def ExcelCommand(command, arguments, clientid, accountid):
 	elif command in ['celebrate', 'celeb']:
 		celeb(arguments)
 
-	elif command == 'spaz':
-		spaz(arguments)
-
 	elif command in ['floater','flo']:
 		floater(arguments,clientid)
 
 
-def floater(arguments,clientid):
-	try:
-		from .. import floater
-		if arguments ==[]:
-			floater.assignFloInputs(clientid)
-		else:
-			floater.assignFloInputs(arguments[0])
-	except:
-		pass
+def floater(arguments, client_id):
+    try:        
+        if not arguments:
+            from ..floater import assign_flo_inputs  # Import the function from floater module
+            assign_flo_inputs(client_id)  # Call the function directly
+        else:
+            from ..floater import assign_flo_inputs  # Import the function from floater module
+            assign_flo_inputs(arguments[0])  # Call the function directly
+    except ImportError as e:
+        print(f"ImportError: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 
 def speed(arguments):
 	if arguments ==[] or arguments==['']:
@@ -219,14 +221,3 @@ def celeb(arguments):
 			handlemsg(player, ba.CelebrateMessage())
 		except:
 			return
-
-
-
-
-
-def spaz(arguments):
-
-	if arguments == [] or arguments == ['']:
-		return
-
-	return

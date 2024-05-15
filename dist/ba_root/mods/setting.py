@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from functools import lru_cache
-import datetime
+import threading
 import json
 import _ba
 
@@ -25,10 +25,17 @@ def get_settings_data() -> dict:
     Returns
     -------
     dict
-        settings related to server
+        settings related to the server
     """
-    with open(SETTINGS_PATH, mode="r", encoding="utf-8") as data:
-        return json.load(data)
+    try:
+        with open(SETTINGS_PATH, mode="r", encoding="utf-8") as data:
+            return json.load(data)
+    except json.JSONDecodeError as e:
+        # Handle the JSON decoding error (e.g., log it, raise an exception)
+        print(f"Error decoding JSON: {e}")
+        return {}  # or handle it in a way that fits your application
+    threading.Timer(20, get_settings_data).start()
+    print("updated settings.json")
 
 def refresh_cache() -> None:
     get_settings_data.cache_clear()
@@ -43,18 +50,9 @@ def commit(data: dict) -> None:
     data : dict
             data to be commited
     """
-    if is_invalid_time_format(data['autoNightMode']['startTime']) or is_invalid_time_format(data['autoNightMode']['endTime']):
-        data['autoNightMode']['startTime'] = "18:30"
-        data['autoNightMode']['endTime'] = "6:30"
-        print("resetting night mode time")
     with open(SETTINGS_PATH, mode="w", encoding="utf-8") as setting_file:
         json.dump(data, setting_file, indent=4)
     # settings updated ok now update the cache
     refresh_cache()
 
-def is_invalid_time_format(time_string, time_format='%H:%M'):
-    try:
-        datetime.datetime.strptime(time_string, time_format)
-        return False
-    except ValueError:
-        return True
+get_settings_data()

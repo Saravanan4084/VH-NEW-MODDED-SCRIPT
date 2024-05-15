@@ -10,7 +10,6 @@
 from __future__ import annotations
 from ba._servermode import ServerController
 from ba._session import Session
-
 from typing import TYPE_CHECKING
 from datetime import datetime
 import _thread
@@ -25,14 +24,14 @@ from bastd.activity.coopscore import CoopScoreScreen
 import setting
 from tools import account
 from chatHandle import handlechat
-from features import team_balancer, afk_check, fire_flies, hearts, dual_team_score as newdts
+from features import team_balancer, afk_check, snow_fall, dual_team_score as newdts
 from stats import mystats
 from spazmod import modifyspaz
 from tools import servercheck, ServerUpdate, logger, playlist, servercontroller
 from playersData import pdata
 from serverData import serverdata
 from features import votingmachine
-from features import text_on_map, announcement
+from features import text_on_map, announcement, map
 from features import map_fun
 from spazmod import modifyspaz
 from tools import notification_manager
@@ -45,6 +44,7 @@ settings = setting.get_settings_data()
 def filter_chat_message(msg: str, client_id: int) -> str | None:
     """Returns all in game messages or None (ignore's message)."""
     return handlechat.filter_chat_message(msg, client_id)
+
 
 # ba_meta export plugin
 
@@ -131,6 +131,8 @@ def bootstraping():
         from features import StumbledScoreScreen
     if settings["colorfullMap"]:
         from plugins import colorfulmaps2
+    if settings['backflip']['enable']:
+        from plugins import Backflip
     try:
         pass
         # from tools import healthcheck
@@ -167,6 +169,7 @@ def bootstraping():
         pdata.load_white_list()
 
     import_discord_bot()
+    
     import_games()
     import_dual_team_score()
     logger.log("Server started")
@@ -179,9 +182,22 @@ def import_discord_bot() -> None:
         discord_bot.token = settings["discordbot"]["token"]
         discord_bot.liveStatsChannelID = settings["discordbot"]["liveStatsChannelID"]
         discord_bot.logsChannelID = settings["discordbot"]["logsChannelID"]
+        discord_bot.complaintChannelID=settings["discordbot"]["complaintChannelID"]
+        discord_bot.notifyChannelID=settings["discordbot"]["notifyChannelID"]
+        discord_bot.whitelisted_servers = settings["discordbot"]["whitelisted_servers"]
+        discord_bot.whitelisted_users = settings["discordbot"]["allowed_user_ids"]
+        discord_bot.notify_role = settings["discordbot"]["notify_role"]
+        discord_bot.complaint_role = settings["discordbot"]["complaint_role"]
+        discord_bot.CurrencyName = settings["CurrencyType"]["CurrencyName"]
+        discord_bot.prefix = settings["discordbot"]["bot_prefix"]
+        discord_bot.commands_prefix = settings["discordbot"]["commands_prefix"]
         discord_bot.liveChat = settings["discordbot"]["liveChat"]
         discord_bot.BsDataThread()
         discord_bot.init()
+
+  
+    
+
 
 
 def import_games():
@@ -251,7 +267,29 @@ ba._activity.Activity.on_player_join = on_player_join
 
 def night_mode() -> None:
     """Checks the time and enables night mode."""
-
+    #Night Mode for permanently
+    if settings["ShiningPlayers"]:
+       activity = _ba.get_foreground_host_activity()
+       activity.globalsnode.ambient_color = (5, 5, 5)      
+## 
+    #Night Mode for permanently
+    if settings['NightMode']:
+       activity = _ba.get_foreground_host_activity()
+       activity.globalsnode.tint = (0.5, 0.7, 1.0)
+##
+    #set your own deflaut colour
+    if settings["OwnDefaultBackground"]["enable"]:
+       activity = _ba.get_foreground_host_activity()
+       color = settings["OwnDefaultBackground"]["color"]
+       activity.globalsnode.tint = tuple(color)
+##
+    #Snowfall in map permanently
+    if settings["Snowfall"]["enable"]:
+       activity = _ba.get_foreground_host_activity()
+       activity.snowfall_generator(settings["Snowfall"]["SnowCount"], 
+           settings["Snowfall"]["SnowFallingSpeed"], settings["Snowfall"]["SnowScale"])       
+###
+    #Auto Night Mode with start and end time
     if settings['autoNightMode']['enable']:
 
         start = datetime.strptime(
@@ -267,7 +305,35 @@ def night_mode() -> None:
             if settings['autoNightMode']['fireflies']:
                 activity.fireflies_generator(
                     20, settings['autoNightMode']["fireflies_random_color"])
-
+            if settings["autoNightMode"]["Snowfall"]:
+                activity.snowfall_generator(settings["Snowfall"]["SnowCount"], 
+                    settings["Snowfall"]["SnowFallingSpeed"], settings["Snowfall"]["SnowScale"])     
+#######
+            if settings['autoNightMode']["floor_reflections"]:
+                rs = [1]  # Adjust this value for suitable nighttime reflections
+                typee = 'soft' if 1 == 0 else 'powerup'
+                try:
+                    activity = _ba.get_foreground_host_activity()
+                    activity.map.node.reflection = typee
+                    activity.map.node.reflection_scale = rs
+                    activity.map.bg.reflection = typee
+                    activity.map.bg.reflection_scale = rs
+                    activity.map.floor.reflection = typee
+                    activity.map.floor.reflection_scale = rs
+                    activity.map.center.reflection = typee
+                    activity.map.center.reflection_scale = rs
+                except Exception as e:
+                    pass
+######
+            if settings['autoNightMode']["magic_light"]:
+                  m = 1.3 if 4 is None else float(4)
+                  s = 1000 if 0.9 is None else float(0.9)      
+                  try:
+                      activity = _ba.get_foreground_host_activity()
+                      ba.animate_array(activity.globalsnode, 'ambient_color',3, {0: (1*m,0,0), s: (0,1*m,0),s*2:(0,0,1*m),s*3:(1*m,0,0)},True)
+                  except Exception as e:
+                      pass     
+  
 
 def kick_vote_started(started_by: str, started_to: str) -> None:
     """Logs the kick vote."""
@@ -290,6 +356,7 @@ def on_join_request(ip):
 
 def on_map_init():
     text_on_map.textonmap()
+    map.TEXTONMAP()
     modifyspaz.setTeamCharacter()
 
 

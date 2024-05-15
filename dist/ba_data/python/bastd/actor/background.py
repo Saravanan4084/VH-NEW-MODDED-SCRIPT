@@ -38,10 +38,10 @@ class Background(ba.Actor):
                 delegate=self,
                 attrs={
                     'fill_screen': True,
-                    'texture': ba.gettexture('bg'),
+                    'texture': ba.gettexture('menuBG'),
                     'tilt_translate': -0.3,
                     'has_alpha_channel': False,
-                    'color': (1, 1, 1),
+                    'color': (0.2, 1, 1),
                 },
             )
             if not start_faded:
@@ -52,7 +52,7 @@ class Background(ba.Actor):
                     loop=False,
                 )
             if show_logo:
-                logo_texture = ba.gettexture('logo')
+                logo_texture = ba.gettexture('chestIcon')
                 logo_model = ba.getmodel('logo')
                 logo_model_transparent = ba.getmodel('logoTransparent')
                 self.logo = ba.newnode(
@@ -60,8 +60,6 @@ class Background(ba.Actor):
                     owner=self.node,
                     attrs={
                         'texture': logo_texture,
-                        'model_opaque': logo_model,
-                        'model_transparent': logo_model_transparent,
                         'scale': (0.7, 0.7),
                         'vr_depth': -250,
                         'color': (0.15, 0.15, 0.15),
@@ -71,6 +69,10 @@ class Background(ba.Actor):
                     },
                 )
                 self.node.connectattr('opacity', self.logo, 'opacity')
+                ba.animate(self.logo, 'rotate', {0: 0.0, 6.0: 360.0}, loop=True)
+                ba.animate_array(self.logo,'color',3,{0:(0,0,2),0.5:(0,2,0),1.0:(2,0,0),1.5:(2,2,0),2.0:(2,0,2),2.5:(0,1,6),3.0:(1,2,0)},loop=True)
+                ba.animate(self.logo, 'opacity', {0: 0.0, 0.5: 1.0, 1.0: 1.0, 1.5: 0},loop=True)
+
                 # add jitter/pulse for a stop-motion-y look unless we're in VR
                 # in which case stillness is better
                 if not ba.app.vr_mode:

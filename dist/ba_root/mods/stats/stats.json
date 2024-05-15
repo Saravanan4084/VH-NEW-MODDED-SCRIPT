@@ -1,8 +1,8 @@
 {
-    "startDate": "17-07-2022",
+    "startDate": "29-03-2024 15:34:34",
     "stats": {
         "pb-IF4VAk4a": {
-            "rank": 1,
+            "rank": 6,
             "name": "pb-IF4VAk4a",
             "scores": 0,
             "total_damage": 0.0,
@@ -14,18 +14,70 @@
             "aid": "pb-IF4VAk4a",
             "last_seen": "2022-04-26 17:01:13.715014"
         },
-        "pb-IF4RU2ECAg==": {
+        "pb-IF5dU1Q-IQ==": {
             "rank": 2,
-            "name": "PC452402",
-            "scores": 767,
+            "name": "KART1K",
+            "scores": 1,
             "total_damage": 0.0,
-            "kills": 0,
-            "deaths": 5,
-            "games": 46,
+            "kills": 2,
+            "deaths": 3,
+            "games": 1,
             "kd": 0.0,
-            "avg_score": 16.673,
-            "last_seen": "2022-07-17 16:39:27.777148",
-            "aid": "pb-IF4RU2ECAg=="
+            "avg_score": 0.1,
+            "last_seen": "2024-04-02 19:04:28.209908",
+            "aid": "pb-IF5dU1Q-IQ=="
+        },
+        "pb-IF4CNEE7": {
+            "rank": 1,
+            "name": "Ekam07",
+            "scores": 3,
+            "total_damage": 0.0,
+            "kills": 3,
+            "deaths": 2,
+            "games": 1,
+            "kd": 0.0,
+            "avg_score": 0.2,
+            "last_seen": "2024-04-02 13:10:01.163088",
+            "aid": "pb-IF4CNEE7"
+        },
+        "pb-IF4gUnMlCg==": {
+            "rank": 3,
+            "name": "Cybernova",
+            "scores": 2,
+            "total_damage": 0.0,
+            "kills": 1,
+            "deaths": 1,
+            "games": 6,
+            "kd": 1.076,
+            "avg_score": 3.25,
+            "last_seen": "2024-04-02 13:11:58.419132",
+            "aid": "pb-IF4gUnMlCg=="
+        },
+        "pb-JiNJARFeXENAVF5FEkFQXFVBGUJWTlVH": {
+            "rank": 4,
+            "name": "SARA0786",
+            "scores": 350,
+            "total_damage": 0.0,
+            "kills": 1,
+            "deaths": 1,
+            "games": 2,
+            "kd": 0.0,
+            "avg_score": 0.2,
+            "last_seen": "2024-04-06 08:19:56.931754",
+            "aid": "pb-JiNJARFeXENAVF5FEkFQXFVBGUJWTlVH"
+        },
+        "pb-IF4vU1A9EA==": {
+            "rank": 5,
+            "name": "Y0Y0",
+            "scores": 25,
+            "total_damage": 0.0,
+            "kills": 3,
+            "deaths": 7,
+            "games": 5,
+            "kd": 0.0,
+            "avg_score": 0.0,
+            "last_seen": "2024-04-02 23:21:39.746473",
+            "aid": "pb-IF4vU1A9EA=="
         }
     }
 }

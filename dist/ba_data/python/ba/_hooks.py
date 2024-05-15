@@ -393,8 +393,17 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     Should filter and return the string to be displayed, or return None
     to ignore the message.
     """
-
-    return chooks.filter_chat_message(msg,client_id)
+    if not msg or not msg.strip():
+        return None
+    import coinSystem
+    if (coinSystem.correctAnswer is not None) and (msg.lower() in coinSystem.correctAnswer):
+        coinSystem.checkAnswer(msg,client_id)
+        return msg
+    if True:
+        return chooks.filter_chat_message(msg,client_id)
+    else:
+        if True:
+            return msg
 
 def on_client_request(ip):
     chooks.on_join_request(ip)

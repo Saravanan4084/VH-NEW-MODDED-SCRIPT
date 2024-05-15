@@ -10,6 +10,7 @@ import json
 
 from typing import TYPE_CHECKING
 from dataclasses import dataclass, field
+from tools import chatmessage as cm
 
 import os
 import datetime
@@ -53,8 +54,18 @@ def log(msg: str, mtype: str = "sys") -> None:
 
     if SETTINGS["discordbot"]["enable"]:
         message = msg.replace("||", "|")
-        discord_bot.push_log("***" + mtype + ":***" + message)
+        if mtype == 'chat':
+            discord_bot.push_log("🧾 " + message)
+        elif mtype == 'playerjoin':
+            discord_bot.push_log("📢 " + message)
+        elif mtype == "chatcmd":
+            discord_bot.push_log("🛡️ " + message)
+        elif mtype == "ban":
+            discord_bot.push_log("⛔ " + message)
+        else:
+            discord_bot.push_log("🗂️ " + message)
 
+    msgs = f"{msg}"
     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     msg = f"{current_time} + : {msg} \n"
 
@@ -62,7 +73,9 @@ def log(msg: str, mtype: str = "sys") -> None:
         webhook_queue.append(msg.replace("||", "|"))
 
     if mtype == "chat":
+        #cm.last_message_count(msgs)
         logs.chats.append(msg)
+        cm.last_message_count(msgs)
         if len(logs.chats) > 10:
             dumplogs(logs.chats, "chat").start()
             logs.chats = []

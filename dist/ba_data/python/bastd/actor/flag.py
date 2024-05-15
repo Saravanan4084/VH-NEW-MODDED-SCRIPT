@@ -105,7 +105,7 @@ class FlagFactory:
             ),
         )
 
-        self.flag_texture = ba.gettexture('flagColor')
+        self.flag_texture = ba.gettexture("pixieIcon")
 
     @classmethod
     def get(cls) -> FlagFactory:

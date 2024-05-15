@@ -1,9 +1,11 @@
-from .Handlers import handlemsg, handlemsg_all, clientid_to_myself
+from .Handlers import handlemsg, handlemsg_all, clientid_to_myself,send
 import ba, _ba
+import json
+import os
 
 
-Commands = ['kill', 'heal', 'curse', 'sleep',  'superpunch', 'gloves', 'shield', 'freeze', 'unfreeze', 'godmode']
-CommandAliases = ['die', 'heath', 'cur', 'sp', 'punch', 'protect', 'ice', 'thaw', 'gm']
+Commands = ['kill', 'fall', 'heal', 'curse', 'sleep',  'superpunch', 'gloves', 'shield', 'freeze', 'unfreeze', 'godmode', 'speedon']
+CommandAliases = ['die', 'fell-down', 'heath', 'cur', 'sp', 'punch', 'protect', 'ice', 'thaw', 'gm', 'speedy']
 
 
 
@@ -25,6 +27,9 @@ def ExcelCommand(command, arguments, clientid, accountid):
 	
 	if command in ['kill', 'die']:
 		kill(arguments, clientid)
+
+	elif command in ['fall', 'fell-down']:
+		fall(arguments, clientid)
 		
 	elif command in ['heal', 'heath']:
 		heal(arguments, clientid)
@@ -46,14 +51,15 @@ def ExcelCommand(command, arguments, clientid, accountid):
 		
 	elif command in ['freeze', 'ice']:
 		freeze(arguments, clientid)
-		
+	
 	elif command in ['unfreeze', 'thaw']:
 		un_freeze(arguments, clientid)
 		
 	elif command in ['gm', 'godmode']:
 		god_mode(arguments, clientid)
 
-
+	elif command in ['speedon', 'speedy']:
+		speedy(arguments, clientid)
 
 
 def kill(arguments, clientid):
@@ -69,6 +75,25 @@ def kill(arguments, clientid):
 		try:
 			req_player = int(arguments[0])
 			handlemsg(req_player, ba.DieMessage())
+		except:
+			return
+
+
+
+
+def fall(arguments, clientid):
+	
+	if arguments == [] or arguments == ['']:
+		myself = clientid_to_myself(clientid)
+		handlemsg(myself, ba.StandMessage())
+	
+	elif arguments[0] == 'all':
+		handlemsg_all(ba.StandMessage())
+			
+	else:
+		try:
+			req_player = int(arguments[0])
+			handlemsg(req_player, ba.StandMessage())
 		except:
 			return
 
@@ -133,9 +158,6 @@ def sleep(arguments, clientid):
 			activity.players[req_player].actor.node.handlemessage('knockout', 8000)
 		except:
 			return
-
-
-
 
 
 def super_punch(arguments, clientid):
@@ -308,3 +330,38 @@ def god_mode(arguments, clientid):
 			player._punch_power_scale = 1.2
 			player.node.hockey = False 
 			player.node.invincible = False 
+
+
+def speedy(arguments, clientid):
+	
+	if arguments == [] or arguments == ['']:
+		myself = clientid_to_myself(clientid)
+		activity = _ba.get_foreground_host_activity()
+		player = activity.players[myself].actor
+		
+		if player.node.hockey != True:
+			player.node.hockey = True 
+			
+		else:
+			player.node.hockey = False 
+	
+	elif arguments[0] == 'all':
+		
+		activity = _ba.get_foreground_host_activity()
+		
+		for i in activity.players:
+			if i.actor.node.hockey != True:
+				i.actor.node.hockey = True 
+			else:
+				i.actor.node.hockey = False 
+				
+	else:
+		activity = _ba.get_foreground_host_activity()
+		req_player = int(arguments[0])
+		player = activity.players[req_player].actor
+		
+		if player.node.hockey != True:
+			player.node.hockey = True 
+			
+		else:
+			player.node.hockey = False 

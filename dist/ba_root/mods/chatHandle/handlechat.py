@@ -6,6 +6,7 @@ from chatHandle.ChatCommands import Main
 from tools import logger, servercheck
 from chatHandle.chatFilter import ChatFilter
 from features import votingmachine
+#from ticket import coinsystem
 from playersData import pdata
 import ba
 import _ba
@@ -20,7 +21,7 @@ def filter_chat_message(msg, client_id):
     if client_id == -1:
         if msg.startswith("/"):
             Main.Command(msg, client_id)
-            return None
+            return None        
         logger.log(f"Host msg: | {msg}", "chat")
         return msg
     acid = ""
@@ -40,12 +41,13 @@ def filter_chat_message(msg, client_id):
     if msg == None:
         return
     logger.log(f'{acid}  |  {displaystring}| {currentname} | {msg}', "chat")
+    
     if msg.startswith("/"):
         msg = Main.Command(msg, client_id)
         if msg == None:
             return
 
-    if msg in ["end", "dv", "nv", "sm"] and settings["allowVotes"]:
+    if msg in ["end", "dv", "nv", "sm", "pes", "pet", "pdg", "pdeg"] and settings["allowVotes"]:
         votingmachine.vote(acid, client_id, msg)
 
     if acid in serverdata.clients and serverdata.clients[acid]["verified"]:
@@ -66,8 +68,10 @@ def filter_chat_message(msg, client_id):
         else:
             if msg.startswith(",") and settings["allowTeamChat"]:
                 return Main.QuickAccess(msg, client_id)
-            if msg.startswith(".") and settings["allowInGameChat"]:
+            elif msg.startswith(".") and settings["allowInGameChat"]:
                 return Main.QuickAccess(msg, client_id)
+            elif msg.startswith("/dm") and settings["allowInGameDm"]:
+                return Main.QuickAccess(msg, client_id)            
             return msg
 
     else:

@@ -5,11 +5,11 @@
 # Uncomment any of these values to override defaults.
 
 # Name of our server in the public parties list.
-party_name: "BombSquad Community Server" 
+party_name: "\U0001F4AB|VH PARADISE BANG|\U0001F4AB" 
 
 # If true, your party will show up in the global public party list
 # Otherwise it will still be joinable via LAN or connecting by IP address.
-#party_is_public: true
+# party_is_public: true
 
 # If true, all connecting clients will be authenticated through the master
 # server to screen for fake account info. Generally this should always
@@ -20,8 +20,7 @@ authenticate_clients: true
 # kick vote system and they are able to kick players without a vote. To get
 # your account id, enter 'getaccountid' in settings->advanced->enter-code.
 admins:
-- pb-yOuRAccOuNtIdHErE
-- pb-aNdMayBeAnotherHeRE
+- pb-JiNJARFeXENAVF5FEkFQXFVBGUJWTlVH 
 
 # Whether the default kick-voting system is enabled.
 enable_default_kick_voting: true
@@ -30,14 +29,14 @@ enable_default_kick_voting: true
 # servers on one machine.
 # 43210 is the default and the only port that will show up in the LAN
 # browser tab.
-port: 43210
+port: 43222
 
 # Max devices in the party. Note that this does *NOT* mean max players.
 # Any device in the party can have more than one player on it if they have
 # multiple controllers. Also, this number currently includes the server so
 # generally make it 1 bigger than you need. Max-players is not currently
 # exposed but I'll try to add that soon.
-max_party_size: 6
+max_party_size: 20
 
 # Options here are 'ffa' (free-for-all), 'teams' and 'coop' (cooperative)
 # This value is ignored if you supply a playlist_code (see below).
@@ -48,14 +47,14 @@ max_party_size: 6
 # playlist editor in the regular version of the game.
 # This will give you a numeric code you can enter here to host that
 # playlist.
-playlist_code: 412158
+playlist_code: 438330
 
 # Alternately, you can embed playlist data here instead of using codes.
 # Make sure to set session_type to the correct type for the data here.
 #playlist_inline: []
 
 # Whether to shuffle the playlist or play its games in designated order.
-#playlist_shuffle: true
+playlist_shuffle: true
 
 # If true, keeps team sizes equal by disallowing joining the largest team
 # (teams mode only).
@@ -80,7 +79,7 @@ playlist_code: 412158
 
 # Series length in teams mode (7 == 'best-of-7' series; a team must
 # get 4 wins)
-teams_series_length: 7
+teams_series_length: 9
 
 # Points to win in free-for-all mode (Points are awarded per game based on
 # performance)
@@ -93,7 +92,7 @@ ffa_series_length: 24
 # currently-signed-in account's id. To fetch info about an account,
 # your back-end server can use the following url:
 # http://bombsquadgame.com/accountquery?id=ACCOUNT_ID_HERE
-stats_url: https://discord.gg/ucyaesh
+stats_url: https://discord.gg/4BZvMrA3Sj
 
 # If present, the server subprocess will attempt to gracefully exit after
 # this amount of time. A graceful exit can occur at the end of a series
@@ -120,13 +119,13 @@ stats_url: https://discord.gg/ucyaesh
 
 # Team names (teams mode only).
 team_names:
-- ladoo
-- barfi
+- ✨VORTEX✨
+- 🌟HONOR🌟
 
 # Team colors (teams mode only).
 team_colors:
-- [0.8, 0.0, 0.6]
-- [0, 1, 0.8]
+- [1, 2, 4]
+- [10, 0.15, 0.15]
 
 # Whether to enable the queue where players can line up before entering
 # your server. Disabling this can be used as a workaround to deal with

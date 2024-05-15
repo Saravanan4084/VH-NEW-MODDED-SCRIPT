@@ -455,6 +455,13 @@ def powerup_dist():
             ('tank_shield',powerups['Tank Shield']),
             ('impairment_bombs',powerups['Impairment Bombs']),
             ('fire_bombs',powerups['Fire Bombs']),
+            ('champ',powerups['Champion']),
+            ('spunch',powerups['Spunch']),
+            ('radius',powerups['Radius']),
+            ('multi_bomb',powerups['Multi Bomb']),
+            ('pwp_false',powerups['PWP']),
+            ('extra_lyfe',powerups['ExtraLyfe']),
+            ('false_bombs',powerups['False Bombs']),
             ('fly_bombs',powerups['Fly Bombs']))
 
 def percentage_tank_shield():
@@ -510,6 +517,7 @@ class NewPowerupBoxFactory(pupbox.PowerupBoxFactory):
     def __init__(self) -> None:
         super().__init__()
         self.tex_speed = ba.gettexture('powerupSpeed')
+        self.tex_champ = ba.gettexture('achievementBoxer')
         self.tex_health_damage = ba.gettexture('heart')
         self.tex_goodbye = ba.gettexture('achievementOnslaught')
         self.tex_ice_man = ba.gettexture('ouyaUButton')
@@ -517,6 +525,12 @@ class NewPowerupBoxFactory(pupbox.PowerupBoxFactory):
         self.tex_impairment_bombs = ba.gettexture('levelIcon')
         self.tex_fire_bombs = ba.gettexture('ouyaOButton')
         self.tex_fly_bombs = ba.gettexture('star')
+        self.tex_spunch = ba.gettexture('achievementSuperPunch')
+        self.tex_radius = ba.gettexture('achievementOnslaught')
+        self.tex_multi_bomb = ba.gettexture('crossOutMask')
+        self.tex_pwp_false = ba.gettexture('crossOut')
+        self.tex_extra_lyfe = ba.gettexture('achievementStayinAlive')
+        self.tex_false_bombs = ba.gettexture('gameCenterIcon')
         
         self._powerupdist = []
         for powerup, freq in powerup_dist():
@@ -570,7 +584,7 @@ def _bomb_init(self,
 
     self.bm_type = bomb_type
     new_bomb_type = bomb_type
-    bombs = ['ice_bubble','impairment','fire','fly']
+    bombs = ['ice_bubble','impairment','fire','fly','false']
     
     if bomb_type in bombs:
         new_bomb_type = 'ice'
@@ -599,14 +613,19 @@ def _bomb_init(self,
     elif self.bm_type == 'fly':
         self.bomb_type = self.bm_type
         tex = ba.gettexture('eggTex1')
+    elif self.bm_type == 'false':
+        self.bomb_type = self.bm_type
+        tex = ba.gettexture('gameCenterIcon')
 
     self.node.color_texture = tex
     self.hit_subtype = self.bomb_type
 
     if self.bomb_type == 'ice_bubble':
         self.blast_radius *= 1.2
+    elif self.bomb_type == 'false':
+        self.blast_radius *= 1.2
     elif self.bomb_type == 'fly':
-        self.blast_radius *= 2.2
+        self.blast_radius *= 3.2
 
 def bomb_handlemessage(self, msg: Any) -> Any:
     assert not self.expired
@@ -628,8 +647,10 @@ def bomb_handlemessage(self, msg: Any) -> Any:
             mag *= 2.0
         elif self.blast_type == 'fire':
             mag *= 0.6
+        elif self.blast_type == 'false':
+            mag *= 0.8
         elif self.blast_type == 'fly':
-            mag *= 5.5
+            mag *= 2.5
 
         node.handlemessage(
             ba.HitMessage(pos=nodepos,
@@ -644,6 +665,41 @@ def bomb_handlemessage(self, msg: Any) -> Any:
                          10,
                          position=nodepos)
             node.handlemessage(ba.FreezeMessage())
+        elif self.blast_type == 'false':
+            node.handlemessage(ba.PowerupMessage(poweruptype='false'))
+            def emit() -> None:
+                ba.emitfx(position=nodepos,
+                          velocity=(0, 0, 0),
+                          count=int(4.0 + random.random() * 8),
+                          spread=0.7,
+                          chunk_type='spark')
+                ba.emitfx(position=nodepos,
+                          velocity=(0, 0, 0),
+                          count=int(4.0 + random.random() * 8),
+                          scale=0.5,
+                          spread=0.7,
+                          chunk_type='spark')
+                ba.emitfx(position=nodepos,
+                          velocity=(0, 0, 0),
+                          count=15,
+                          scale=0.6,
+                          chunk_type='metal',
+                          emit_type='stickers')
+                ba.emitfx(position=nodepos,
+                          velocity=(0, 0, 0),
+                          count=20,
+                          scale=0.7,
+                          chunk_type='ice',
+                          emit_type='stickers')
+                ba.emitfx(position=nodepos,
+                          velocity=(0, 0, 0),
+                          count=int(6.0 + random.random() * 12),
+                          scale=0.8,
+                          spread=1.5,
+                          chunk_type='ice')
+
+            # It looks better if we delay a bit.
+            ba.timer(0.05, emit)
 
     return None
 
@@ -651,6 +707,13 @@ def powerup_translated(self, type: str):
     powerups_names = {'triple_bombs': ba.Lstr(resource='helpWindow.'+'powerupBombNameText'),
                 'ice_bombs': ba.Lstr(resource='helpWindow.'+'powerupIceBombsNameText'),
                 'punch': ba.Lstr(resource='helpWindow.'+'powerupPunchNameText'),
+                'champ': 'Champion',
+                'spunch': 'Spunch',
+                'radius': 'Radius',
+                'multi_bomb': 'Multi Bomb',
+                'pwp_false': 'PWP',
+                'extra_lyfe': 'ExtraLyfe',
+                'false_bombs': 'False Bombs',
                 'impact_bombs': ba.Lstr(resource='helpWindow.'+'powerupImpactBombsNameText'),
                 'land_mines': ba.Lstr(resource='helpWindow.'+'powerupLandMinesNameText'),
                 'sticky_bombs': ba.Lstr(resource='helpWindow.'+'powerupStickyBombsNameText'),
@@ -694,6 +757,9 @@ def _pbx_(self, position: Sequence[float] = (0.0, 1.0, 0.0),
     if self.npowerup == 'speed':
         type = self.npowerup
         tex = factory.tex_speed
+    elif self.npowerup == 'champ':
+        type = self.npowerup
+        tex = factory.tex_champ
     elif self.npowerup == 'health_damage':
         type = self.npowerup
         tex = factory.tex_health_damage
@@ -715,6 +781,24 @@ def _pbx_(self, position: Sequence[float] = (0.0, 1.0, 0.0),
     elif self.npowerup == 'fly_bombs':
         type = self.npowerup
         tex = factory.tex_fly_bombs
+    elif self.npowerup == 'spunch':
+        type = self.npowerup
+        tex = factory.tex_spunch
+    elif self.npowerup == 'radius':
+        type = self.npowerup
+        tex = factory.tex_radius
+    elif self.npowerup == 'multi_bomb':
+        type = self.npowerup
+        tex = factory.tex_multi_bomb
+    elif self.npowerup == 'pwp_false':
+        type = self.npowerup
+        tex = factory.tex_pwp_false
+    elif self.npowerup == 'extra_lyfe':
+        type = self.npowerup
+        tex = factory.tex_extra_lyfe
+    elif self.npowerup == 'false_bombs':
+        type = self.npowerup
+        tex = factory.tex_false_bombs
 
     self.poweruptype = type
     self.node.model = model
@@ -804,6 +888,61 @@ def _speed_wear_off(self):
         self.node.billboard_opacity = 0.0
         ba.playsound(ba.getsound('powerdown01'))
         
+def _multi_wear_off_flash(self):
+    if self.node:
+        factory = NewPowerupBoxFactory.get()
+        self.node.billboard_texture = factory.tex_multi_bomb
+        self.node.billboard_opacity = 1.0
+        self.node.billboard_cross_out = True
+        
+def _multi_wear_off(self):
+    if self.node:
+        self.set_bomb_count(1)
+        self.node.billboard_opacity = 0.0
+        ba.playsound(ba.getsound('powerdown01'))
+        
+def _spunch_wear_off_flash(self):
+    if self.node:
+        factory = NewPowerupBoxFactory.get()
+        self.node.billboard_texture = factory.tex_spunch
+        self.node.billboard_opacity = 1.0
+        self.node.billboard_cross_out = True
+        
+def _spunch_wear_off(self):
+    if self.node:
+        self._punch_power_scale = 1.2
+        self._punch_cooldown = 400
+        self.node.billboard_opacity = 0.0
+        ba.playsound(ba.getsound('powerdown01'))
+
+def _radius_wear_off_flash(self):
+    if self.node:
+        factory = NewPowerupBoxFactory.get()
+        self.node.billboard_texture = factory.tex_radius
+        self.node.billboard_opacity = 1.0
+        self.node.billboard_cross_out = True
+
+def _radius_wear_off(self):
+    if self.node:
+        self.blast_radius = 2.0
+        ba.screenmessage('Blast-Radius Normalized!')
+        self.node.billboard_opacity = 0.0
+        ba.playsound(ba.getsound('powerdown01'))
+        
+def _pwp_wear_off_flash(self):
+    if self.node:
+        factory = NewPowerupBoxFactory.get()
+        self.node.billboard_texture = factory.tex_radius
+        self.node.billboard_opacity = 1.0
+        self.node.billboard_cross_out = True
+
+def _pwp_wear_off(self):
+    if self.node:
+        self.blast_radius = 2.0
+        ba.screenmessage('PWPS given back!')
+        self.node.billboard_opacity = 0.0
+        ba.playsound(ba.getsound('powerdown01'))
+      
 def _ice_man_off_flash(self):
     if self.node:
         factory = NewPowerupBoxFactory.get()
@@ -899,6 +1038,8 @@ def new_handlemessage(self, msg: Any) -> Any:
         factory = NewPowerupBoxFactory.get()
         if self._dead or not self.node:
             return True
+        if self.blast_radius == 2.01:
+            return None
         if self.pick_up_powerup_callback is not None:
             self.pick_up_powerup_callback(self)
         if msg.poweruptype == 'triple_bombs':
@@ -941,6 +1082,29 @@ def new_handlemessage(self, msg: Any) -> Any:
                     POWERUP_WEAR_OFF_TIME,
                     ba.Call(self._bomb_wear_off),
                     timeformat=ba.TimeFormat.MILLISECONDS))
+        elif msg.poweruptype == 'false_bombs':
+            self.bomb_type = 'false'
+            tex = self._get_bomb_type_tex()
+            self._flash_billboard(tex)
+            if self.powerups_expire:
+                self.node.mini_billboard_2_texture = tex
+                t_ms = ba.time(timeformat=ba.TimeFormat.MILLISECONDS)
+                assert isinstance(t_ms, int)
+                self.node.mini_billboard_2_start_time = t_ms
+                self.node.mini_billboard_2_end_time = (
+                    t_ms + POWERUP_WEAR_OFF_TIME)
+                self._bomb_wear_off_flash_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME - 2000,
+                    ba.Call(self._bomb_wear_off_flash),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+                self._bomb_wear_off_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME,
+                    ba.Call(self._bomb_wear_off),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+        elif msg.poweruptype == 'false':
+            self.blast_radius = 2.01
+            ba.screenmessage('No PWP for you!')
+            #needed for False Bomb!
         elif msg.poweruptype == 'sticky_bombs':
             self.bomb_type = 'sticky'
             tex = self._get_bomb_type_tex()
@@ -981,6 +1145,86 @@ def new_handlemessage(self, msg: Any) -> Any:
                     POWERUP_WEAR_OFF_TIME,
                     ba.WeakCall(self._gloves_wear_off),
                     timeformat=ba.TimeFormat.MILLISECONDS))
+        elif msg.poweruptype == 'spunch':
+            tex = PowerupBoxFactory.get().tex_spunch
+            self._flash_billboard(tex)
+            self._punch_power_scale = 0.75
+            self._punch_cooldown = 130
+            if self.powerups_expire:
+                self.node.mini_billboard_3_texture = tex
+                t_ms = ba.time(timeformat=ba.TimeFormat.MILLISECONDS)
+                assert isinstance(t_ms, int)
+                self.node.mini_billboard_3_start_time = t_ms
+                self.node.mini_billboard_3_end_time = (
+                    t_ms + POWERUP_WEAR_OFF_TIME)
+                self._spunch_wear_off_flash_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME - 2000,
+                    ba.Call(_spunch_wear_off_flash,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+                self._spunch_wear_off_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME,
+                    ba.Call(_spunch_wear_off,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+        elif msg.poweruptype == 'radius':
+            tex = PowerupBoxFactory.get().tex_radius
+            self._flash_billboard(tex)
+            self.blast_radius = 5.0
+            ba.screenmessage('Blast-Radius Increased!')
+            if self.powerups_expire:
+                self.node.mini_billboard_3_texture = tex
+                t_ms = ba.time(timeformat=ba.TimeFormat.MILLISECONDS)
+                assert isinstance(t_ms, int)
+                self.node.mini_billboard_3_start_time = t_ms
+                self.node.mini_billboard_3_end_time = (
+                    t_ms + POWERUP_WEAR_OFF_TIME)
+                self._spunch_wear_off_flash_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME - 2000,
+                    ba.Call(_radius_wear_off_flash,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+                self._spunch_wear_off_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME,
+                    ba.Call(_radius_wear_off,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+        elif msg.poweruptype == 'multi_bomb':
+            tex = PowerupBoxFactory.get().tex_multi_bomb
+            self._flash_billboard(tex)
+            self.set_bomb_count(999)
+            #ba.screenmessage('Blast-Radius Increased!')
+            if self.powerups_expire:
+                self.node.mini_billboard_3_texture = tex
+                t_ms = ba.time(timeformat=ba.TimeFormat.MILLISECONDS)
+                assert isinstance(t_ms, int)
+                self.node.mini_billboard_3_start_time = t_ms
+                self.node.mini_billboard_3_end_time = (
+                    t_ms + POWERUP_WEAR_OFF_TIME)
+                self._spunch_wear_off_flash_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME - 2000,
+                    ba.Call(_multi_wear_off_flash,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+                self._spunch_wear_off_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME,
+                    ba.Call(_multi_wear_off,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+        elif msg.poweruptype == 'pwp_false':
+            tex = PowerupBoxFactory.get().tex_pwp_false
+            self._flash_billboard(tex)
+            self.blast_radius = 2.01
+            ba.screenmessage('NO PWPS FOR YOU!')
+            if self.powerups_expire:
+                self.node.mini_billboard_3_texture = tex
+                t_ms = ba.time(timeformat=ba.TimeFormat.MILLISECONDS)
+                assert isinstance(t_ms, int)
+                self.node.mini_billboard_3_start_time = t_ms
+                self.node.mini_billboard_3_end_time = (
+                    t_ms + POWERUP_WEAR_OFF_TIME)
+                self._spunch_wear_off_flash_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME - 2000,
+                    ba.Call(_pwp_wear_off_flash,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
+                self._spunch_wear_off_timer = (ba.Timer(
+                    POWERUP_WEAR_OFF_TIME,
+                    ba.Call(_pwp_wear_off,self),
+                    timeformat=ba.TimeFormat.MILLISECONDS))
         elif msg.poweruptype == 'shield':
             factory = SpazFactory.get()
             self.equip_shields(decay=factory.shield_decay_rate > 0)
@@ -1004,7 +1248,11 @@ def new_handlemessage(self, msg: Any) -> Any:
                 self._bomb_wear_off_timer = (ba.Timer(
                     POWERUP_WEAR_OFF_TIME,
                     ba.WeakCall(self._bomb_wear_off),
-                    timeformat=ba.TimeFormat.MILLISECONDS))
+                    timeformat=ba.TimeFormat.MILLISECONDS)) 
+        elif msg.poweruptype == 'extra_lyfe':
+            self.hitpoints += 800
+            self.node.hurt -= 0.8
+            ba.screenmessage('+80 HP')
         elif msg.poweruptype == 'health':
             if self.edg_eff:
                 f = self.color[0]
@@ -1134,6 +1382,11 @@ def new_handlemessage(self, msg: Any) -> Any:
                 self.ice_man_timer = (ba.Timer(ice_man_time,
                     ba.Call(_ice_man_wear_off,self),
                     timeformat=ba.TimeFormat.MILLISECONDS))
+
+        elif msg.poweruptype == 'champ':
+            self.node.handlemessage(ba.PowerupMessage(poweruptype='punch'))
+            self.equip_shields()
+            self.node.handlemessage('knockout', 500.0)
 
         elif msg.poweruptype == 'speed':
             self.node.hockey = True
@@ -1851,6 +2104,9 @@ class PowerupManagerWindow(PopupWindow):
                 elif power == id_power[16]:
                     text = power
                     tex = ba.gettexture('star')
+                elif power == id_power[17]:
+                    text = 'helpWindow.powerupPunchNameText'
+                    tex = ba.gettexture('powerupPunch')
                     
                 if power in new_powerups: label = getlanguage(power)
                 else: label = ba.Lstr(resource=text)
@@ -2077,6 +2333,9 @@ class PowerupManagerWindow(PopupWindow):
                 elif power == id_power[16]:
                     text = power
                     tex = ba.gettexture('star')
+                elif power == id_power[17]:
+                    text = 'helpWindow.powerupPunchNameText'
+                    tex = ba.gettexture('powerupPunch')
                     
                 if power in new_powerups: label = getlanguage(power)
                 else: label = ba.Lstr(resource=text)

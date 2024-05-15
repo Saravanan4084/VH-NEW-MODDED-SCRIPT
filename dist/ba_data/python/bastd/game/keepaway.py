@@ -81,7 +81,7 @@ class KeepAwayGame(ba.TeamGameActivity[Player, Team]):
             ],
             default=1.0,
         ),
-        ba.BoolSetting('Epic Mode', default=False),
+        ba.BoolSetting('Epic Mode', default=True),
     ]
     scoreconfig = ba.ScoreConfig(label='Time Held')
 

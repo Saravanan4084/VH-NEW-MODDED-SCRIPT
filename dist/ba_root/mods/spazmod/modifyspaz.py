@@ -1,5 +1,6 @@
 from spazmod import tag
 import setting
+from spazmod import effects
 from random import randint
 from spazmod import hitmessage
 import _ba
@@ -36,6 +37,8 @@ def main(spaz, node, player):
         tag.addtag(node, player)
     if _setting['enablerank']:
         tag.addrank(node, player)
+    if _setting['enableeffects']:
+		    effects.Effect(spaz, player)
     if _setting["playermod"]['default_boxing_gloves']:
         spaz.equip_boxing_gloves()
     if _setting['playermod']['default_shield']:
