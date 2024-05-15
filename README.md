@@ -116,3 +116,4 @@ Here you can ban players, mute them, or disable their kick votes.
 - New Splitted Team in game score screen.
 - New final score screen , StumbledScoreScreen.
 - other small small feature improvement here there find yourself.
+# VH-SCRIPT-FOR-VH-SERVER-ONLY
