@@ -40,10 +40,13 @@ class textonmap:
         if setti["leaderboard"]["enable"]:
             self.leaderBoard()
         if setti["textonmap"]['center highlights']["enable"]:
+            self.highlights_()
             self.timer = ba.timer(8.0, ba.Call(self.highlights_), repeat=True)
-        if setti["timetext"]["enable"]:                                               
+        if setti["timetext"]["enable"]:
+            self.show_date_time()
             self.timer = ba.timer(0.1, ba.Call(self.show_date_time), repeat = True)
         if setti["TopMapText"]["enable"]:
+            self.show_top_text()
             self.timer = ba.timer(5.0, ba.Call(self.show_top_text), repeat = True)     
         
     def highlights_(self):
