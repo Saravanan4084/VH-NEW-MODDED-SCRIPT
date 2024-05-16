@@ -32,8 +32,6 @@ class textonmap:
         self.top_message(top)
         self.nextGame(nextMap)
         self.restart_msg()
-        self.show_date_time()
-        self.show_top_text()
         if hasattr(_ba, "season_ends_in_days"):
             # if _ba.season_ends_in_days < 9:
             self.season_reset(_ba.season_ends_in_days)
