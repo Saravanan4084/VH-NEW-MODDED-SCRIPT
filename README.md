@@ -19,9 +19,9 @@ Requirements
 | Python | 3.10.12 |
 | Ubuntu | 22.04 |
 
-![](https://img.shields.io/github/forks/hypervortex/VH-Bombsquad-Modded-Server-Files?color=green&style=for-the-badge)
-![](https://img.shields.io/github/stars/hypervortex/VH-Bombsquad-Modded-Server-Files?color=green&style=for-the-badge)
-![](https://img.shields.io/github/license/hypervortex/VH-Bombsquad-Modded-Server-Files?color=green&style=for-the-badge)
+![](https://img.shields.io/github/forks/Sarasayed0118/VH-NEW-MODDED-SCRIPT?color=green&style=for-the-badge)
+![](https://img.shields.io/github/stars/Sarasayed0118/VH-NEW-MODDED-SCRIPT?color=green&style=for-the-badge)
+![](https://img.shields.io/github/license/Sarasayed0118/VH-NEW-MODDED-SCRIPT?color=green&style=for-the-badge)
 
 ## Download server files.
 
